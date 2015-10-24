@@ -1,0 +1,50 @@
+rm(list = ls())
+
+# Set the directory
+setwd("C:/Users/Stan/Documents/R_projects/Foundations/Dive into EDA/Explore Many Variables")
+library(dplyr)
+
+# Part 1-2
+
+# Load the data
+xTestDf <- read.table("C:/Users/Stan/Documents/R_projects/Data/UCI HAR Dataset/UCI HAR Dataset/test/X_test.txt")
+xTrainDf <- read.table("X_train.txt")?
+finalDf <- full_join(xTestDf, xTrainDf)
+
+# Load the features (i.e. the column names)
+featuresDf <- read.table("C:/Users/Stan/Documents/R_projects/Data/UCI HAR Dataset/UCI HAR Dataset/features.txt")
+
+# Remove stringsAsFactors and we only have 477 levels
+featuresDf <- read.table("features.txt",
+                stringsAsFactors = FALSE)
+
+#Apply the names to the data frame
+names(xTestDf) <- featuresDf[, 2]
+
+# Extract on columns with the word mean or std in it
+xTestDf <- xTestDf[, grepl("mean|std", names(xTestDf))]
+
+
+# Parts 3-5
+# Load the subject test data
+activityLabels <- read.table("C:/Users/Stan/Documents/R_projects/Data/UCI HAR Dataset/UCI HAR Dataset/activity_labels.txt")
+activityDf <- read.table("C:/Users/Stan/Documents/R_projects/Data/UCI HAR Dataset/UCI HAR Dataset/test/y_test.txt")
+
+# Merge the labels in
+activityDf <- merge(activityDf,
+                       activityLabels,
+                       by = "V1")
+names(activityDf) <- c("Id", "Activity")
+
+# Add the labels to the initial test data frame
+xTestDf <- cbind(activityDf, xTestDf)
+
+# Take the mean and std of each column grouped by the test outcme
+finalDf <- xTestDf %>%
+    group_by(Activity) %>%
+    summarise_each(funs(mean, sd))
+
+
+
+
+
